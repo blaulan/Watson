@@ -1259,13 +1259,15 @@ def frames(watson):
               help="Date and time of start of tracked activity")
 @click.option('-t', '--to', required=True, type=DateTime,
               help="Date and time of end of tracked activity")
+@click.option('-n', '--note', type=str, default=None,
+              help="A brief note that describe time entry being started")
 @click.option('-c', '--confirm-new-project', is_flag=True, default=False,
               help="Confirm addition of new project.")
 @click.option('-b', '--confirm-new-tag', is_flag=True, default=False,
               help="Confirm creation of new tag.")
 @click.pass_obj
 @catch_watson_error
-def add(watson, args, from_, to, confirm_new_project, confirm_new_tag):
+def add(watson, args, from_, to, confirm_new_project, confirm_new_tag, note):
     """
     Add time to a project with tag(s) that was not tracked live.
 
