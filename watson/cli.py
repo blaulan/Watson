@@ -1298,7 +1298,7 @@ def add(watson, args, from_, to, confirm_new_project, confirm_new_tag, note):
         confirm_tags(tags, watson.tags)
 
     # add a new frame, call watson save to update state files
-    frame = watson.add(project=project, tags=tags, from_date=from_, to_date=to)
+    frame = watson.add(project=project, tags=tags, from_date=from_, to_date=to, note=note)
     click.echo(
         "Adding project {}{}, started {} and stopped {}. (id: {})".format(
             style('project', frame.project),
@@ -1308,6 +1308,10 @@ def add(watson, args, from_, to, confirm_new_project, confirm_new_tag, note):
             style('short_id', frame.id)
         )
     )
+
+    if frame.note:
+        click.echo(format_note(frame.note))
+
     watson.save()
 
 
