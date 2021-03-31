@@ -744,12 +744,13 @@ def report(watson, current, from_, to, projects, tags, ignore_projects,
     projects = report['projects']
 
     for project in projects:
-        _print('{tab}{project} - {time}'.format(
+        _print('{tab}{project} - {time} ({percent}%)'.format(
             tab=tab,
             time=style('time', format_timedelta(
                 datetime.timedelta(seconds=project['time'])
             )),
-            project=style('project', project['name'])
+            project=style('project', project['name']),
+            percent=style('note', round(project['time'] / report['time'] * 100, 1))
         ))
 
         if show_notes:
