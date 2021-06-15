@@ -215,6 +215,23 @@ def make_json_writer(func, *args, **kwargs):
     return writer
 
 
+def make_csv_writer(func, *args, **kwargs):
+    """
+    Return a function that receives a file-like object and writes the return
+    value of func(*args, **kwargs) as CSV to it.
+    """
+    def writer(f):
+        entries = func(*args, **kwargs)
+        if entries:
+            header = entries[0].keys()
+            writer = csv.DictWriter(f, header, lineterminator=os.linesep)
+            writer.writeheader()
+            writer.writerows(entries)
+        else:
+            f.write('')
+    return writer
+
+
 def safe_save(path, content, ext='.bak'):
     """
     Save given content to file at given path safely.

@@ -2,7 +2,7 @@ import uuid
 
 import arrow
 
-from collections import namedtuple
+from collections import namedtuple, OrderedDict
 
 HEADERS = ('start', 'stop', 'project', 'id', 'tags', 'updated_at', 'note')
 
@@ -42,6 +42,17 @@ class Frame(namedtuple('Frame', HEADERS)):
 
         return (start, stop, self.project, self.id, self.tags, updated_at,
                 self.note)
+
+    def dump_to_dict(self):
+        return OrderedDict([
+            ('id', self.id),
+            ('start', self.start.to('utc').int_timestamp),
+            ('stop', self.stop.to('utc').int_timestamp),
+            ('updated_at', self.updated_at.to('utc').int_timestamp),
+            ('project', self.project),
+            ('tags', ';'.join(sorted(self.tags))),
+            ('note', self.note if self.note else '')
+        ])
 
     @property
     def day(self):
@@ -147,6 +158,9 @@ class Frames(object):
 
     def dump(self):
         return tuple(frame.dump() for frame in self._rows)
+
+    def dump_to_dict(self):
+        return tuple(frame.dump_to_dict() for frame in self._rows)
 
     def filter(
         self,

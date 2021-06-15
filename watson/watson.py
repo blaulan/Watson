@@ -1,5 +1,6 @@
 import datetime
 from functools import reduce
+import csv
 import json
 import operator
 import os
@@ -10,7 +11,8 @@ import click
 
 from .config import ConfigParser
 from .frames import Frames
-from .utils import deduplicate, make_json_writer, safe_save, sorted_groupby
+from .frames import HEADERS as frame_headers
+from .utils import deduplicate, make_json_writer, make_csv_writer, safe_save, sorted_groupby
 from .version import version as __version__  # noqa
 
 
@@ -92,6 +94,21 @@ class Watson(object):
                 )
             )
 
+
+    def _load_csv_file(self, filename):
+        with open(filename, 'r', newline='') as csvfile:
+            for row in csv.DictReader(csvfile):
+                yield [
+                    int(row[frame_headers[0]]),
+                    int(row[frame_headers[1]]),
+                    row[frame_headers[2]],
+                    row[frame_headers[3]],
+                    row[frame_headers[4]].split(';'),
+                    int(row[frame_headers[5]]),
+                    row[frame_headers[6]]
+                ]
+
+
     def _parse_date(self, date):
         """Returns Arrow object from timestamp."""
         return arrow.Arrow.utcfromtimestamp(date).to('local')
@@ -151,8 +168,10 @@ class Watson(object):
                 self._old_state = current
 
             if self._frames is not None and self._frames.changed:
-                safe_save(self.frames_file,
-                          make_json_writer(self.frames.dump))
+                # safe_save(self.frames_file,
+                #           make_json_writer(self.frames.dump))
+                safe_save(self.frames_file+'.text',
+                          make_csv_writer(self.frames.dump_to_dict))
 
             if self._config_changed:
                 safe_save(self.config_file, self.config.write)
@@ -168,7 +187,8 @@ class Watson(object):
     @property
     def frames(self):
         if self._frames is None:
-            self.frames = self._load_json_file(self.frames_file, type=list)
+            # self.frames = self._load_json_file(self.frames_file, type=list)
+            self.frames = self._load_csv_file(self.frames_file+'.text')
 
         return self._frames
 
